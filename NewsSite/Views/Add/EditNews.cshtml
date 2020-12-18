@@ -1,0 +1,319 @@
+﻿@model NewsSite.Data.Models.News
+
+
+<h1>Добавить новость</h1>
+
+<form controller="Add" action="EditNews" method="post">
+    <div class="row">
+        <div>
+            <input type="hidden" asp-for="id" />
+        </div>
+        <div class="col-md-5 mb-3">
+            <label for="1">Автор статьи:</label>
+            <input type="text" value="" id="1" name="AuthorName" />
+        </div>
+        <div class="col-md-5 mb-3">
+            <label for="6">Заголовок:</label>
+            <input type="text" value="" id="6" name="name" />
+        </div>
+        <div class="col-md-5 mb-3">
+            <label for="2">Дата:</label>
+            <input type="date" id="2" value="" name="date" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="4"> Ссылка для картинки:</label>
+            <input type="text" value="" id="4" name="img" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="5">Категория:</label>
+            <input type="number" value="" id="5" name="categoryID" min="1" max="2" />
+        </div>
+    </div>
+    <div class="mb-3">
+        <div class="col-md-5 mb-3">
+            <label for="3">Текст новости:</label>
+            <textarea class="form-control" id="3" rows="3" name="Desc"></textarea>
+        </div>
+    </div>
+    <input type="hidden" value="True" name="isFavourite" />
+    <div>
+        <input type="submit" value="Добавить" />
+    </div>
+</form>
+
+
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<hr> <hr/>
+<div class="container-xxl">
+    <div class="row m-4 p-1">
+        <form name="userForm">
+            <input type="hidden" name="id" value="0" />
+            <div class="form-group row mb-3">
+                <label for="name">Заголовок:</label>
+                <div class="col-sm-5">
+                    <input class="form-control" name="name" />
+                </div>
+            </div>
+            <div class="form-group row mb-3">
+                <label for="authorName">Автор:   </label>
+                <div class="col-sm-5">
+                    <input class="form-control" name="authorName" />
+                </div>
+            </div>
+
+            <div class="form-group row mb-3">
+                <label for="date">Дата:    </label>
+                <div class="col-sm-auto">
+                    <input class="form-control" name="date" type="date" />
+                </div>
+            </div>
+
+            <div class="form-group row mb-3">
+                <label for="date">Текст новости:    </label>
+                <div class="col-sm-auto">
+                    <input class="form-control" name="Desc" />
+                </div>
+            </div>
+
+            <div class="form-group row mb-3">
+                <label for="categoryID">ID категории:</label>
+                <div class="col-sm-5">
+                    <input class="form-control" name="categoryID" type="number" min="1" max="2" />
+                </div>
+            </div>
+            <div class="col-sm-5">
+                <div class="panel-body">
+                    <button type="submit" id="submit" class="btn btn-primary">Добавить</button>
+
+                </div>
+                <p></p>
+                <div class="panel-body">
+                    <button type="reset" id="reset" class="btn btn-primary">Сбросить</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="container-xxl">
+    <div class="row m-4 p-1">
+        <table class="table table-condensed table-striped col-md-8">
+            <thead>
+                <tr>
+                    <td>ID</td>
+                    <td>Название</td>
+                    <td>Дата</td>
+                    <td>Текст</td>
+                    <td>Автор</td>
+                    <td>ID категории</td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<script>// Получение всех новостей
+    async function GetUsers() {
+        // отправляет запрос и получаем ответ
+        const response = await fetch("/api/Values", {
+            method: "GET",
+            headers: { "Accept": "application/json" }
+        });
+        // если запрос прошел нормально
+        if (response.ok === true) {
+            // получаем данные
+            const users = await response.json();
+            let rows = document.querySelector("tbody");
+            users.forEach(user => {
+                // добавляем полученные элементы в таблицу
+                rows.append(row(user));
+            });
+        }
+    }
+    // Получение одной повости
+    async function GetUser(id) {
+        const response = await fetch("/api/Values/" + id, {
+            method: "GET",
+            headers: { "Accept": "application/json" }
+        });
+        if (response.ok === true) {
+            const user = await response.json();
+            const form = document.forms["userForm"];
+            form.elements["id"].value = user.id;
+            form.elements["name"].value = user.name;
+            form.elements["authorName"].value = user.authorName;
+            form.elements["date"].value = user.date;
+            form.elements["categoryID"].value = user.categoryID;
+        }
+    }
+    // Добавление новости
+    async function CreateUser(NewsName, NewsAuthor, NewsDate, NewsDesc, NewsCategoryID) {
+
+        const response = await fetch("/api/Values", {
+            method: "POST",
+            headers: { "Accept": "application/json", "Content-Type": "application/json" },
+            body: JSON.stringify({
+                name: NewsName,
+                AuthorName: NewsAuthor,
+                img: "https://journal.gm-trade.ru/wp-content/uploads/2020/02/1579292991_29-90.png",
+                isFavourite: true,
+                Desc: NewsDesc,
+                date: NewsDate,
+                category: null,
+                categoryID: parseInt(NewsCategoryID, 10)
+            })
+        });
+        if (response.ok === true) {
+            const user = await response.json();
+            document.querySelector("tbody").append(row(user));
+            reset();
+        }
+    }
+    // Изменение новости
+    async function EditUser(NewsId, NewsName, NewsAuthor, NewsCategoryID, NewsDate, NewsDesc) {
+
+        const response = await fetch("/api/Values/" + NewsId, {
+            method: "PUT",
+            headers: { "Accept": "application/json", "Content-Type": "application/json" },
+            body: JSON.stringify({
+                id: NewsId,
+                name: NewsName,
+                Desc: NewsDesc,
+                img: "https://journal.gm-trade.ru/wp-content/uploads/2020/02/1579292991_29-90.png",
+                isFavourite: true,
+                authorName: NewsAuthor,
+                date: NewsDate,
+                category: null,
+                categoryID: parseInt(NewsCategoryID, 10)
+            })
+        });
+        alert("Данные будут изменены!");
+        if (response.ok === true) {
+            const user = await response.json();
+            document.querySelector("tr[data-rowid='" + user.id + "']").replaceWith(row(user));
+            reset();
+        }
+    }
+    // Удаление новости
+    async function DeleteUser(id) {
+        const response = await fetch("/api/Values/" + id, {
+            method: "DELETE",
+            headers: { "Accept": "application/json" }
+        });
+        if (response.ok === true) {
+            const user = await response.json();
+            document.querySelector("tr[data-rowid='" + user.id + "']").remove();
+        }
+    }
+
+    // сброс формы
+    function reset() {
+        const form = document.forms["userForm"];
+        form.elements["id"].value = 0;
+        form.elements["name"].value = null;
+        form.elements["authorName"].value = null;
+        form.elements["date"].value = null;
+        form.elements["categoryID"].value = 0;
+        form.elements["Desc"].value = null;
+    }
+    // создание строки для таблицы
+    function row(user) {
+
+        const tr = document.createElement("tr");
+        tr.setAttribute("data-rowid", user.id);
+
+        const idTd = document.createElement("td");
+        idTd.append(user.id);
+        tr.append(idTd);
+
+        const nameTd = document.createElement("td");
+        nameTd.append(user.name);
+        tr.append(nameTd);
+
+        const dateTd = document.createElement("td");
+        dateTd.append(user.date);
+        tr.append(dateTd);
+
+        const AuthorNameTd = document.createElement("td");
+        AuthorNameTd.append(user.authorName);
+        tr.append(AuthorNameTd);
+
+        const categoryIDTd = document.createElement("td");
+        categoryIDTd.append(user.categoryID);
+        tr.append(categoryIDTd);
+
+        const linksTd = document.createElement("td");
+
+        const editLink = document.createElement("a");
+        editLink.setAttribute("data-id", user.id);
+        editLink.setAttribute("style", "cursor:pointer;padding:15px;");
+        editLink.append("Изменить");
+        editLink.addEventListener("click", e => {
+
+            e.preventDefault();
+            GetUser(user.id);
+        });
+        linksTd.append(editLink);
+
+        const removeLink = document.createElement("a");
+        removeLink.setAttribute("data-id", user.id);
+        removeLink.setAttribute("style", "cursor:pointer;padding:15px;");
+        removeLink.append("Удалить");
+        removeLink.addEventListener("click", e => {
+
+            e.preventDefault();
+            DeleteUser(user.id);
+        });
+
+        linksTd.append(removeLink);
+        tr.appendChild(linksTd);
+
+        return tr;
+    }
+    // сброс значений формы
+
+
+    // отправка формы
+    document.forms["userForm"].addEventListener("submit", e => {
+        e.preventDefault();
+        const form = document.forms["userForm"];
+
+        const id = form.elements["id"].value;
+
+        const name = form.elements["name"].value;
+
+        const categoryID = form.elements["categoryID"].value;
+
+        const Desc = form.elements["Desc"].value;
+
+        const AuthorName = form.elements["authorName"].value;
+
+        const date = form.elements["date"].value;
+
+
+        if (id == 0) {
+
+            CreateUser(name, AuthorName, date, Desc, categoryID);
+        }
+        else {
+
+            EditUser(id, name, AuthorName, categoryID, date, Desc);
+        }
+    });
+
+    document.forms["userForm"].addEventListener("reset", e => {
+        e.preventDefault();
+        reset();
+    });
+
+    //загрузка пользователей
+    GetUsers();</script>
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>

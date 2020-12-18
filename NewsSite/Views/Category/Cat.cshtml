@@ -1,0 +1,29 @@
+﻿@model IEnumerable<Category>
+
+    <div style="padding:75px">
+        <h2>Выберите, какие новости вас интересуют</h2>
+        </div>
+    <div class="container">
+        <div class="row">
+            <div>
+                <h4>Все новости</h4>
+                <form asp-controller="News" asp-action="Search" data-ajax="true" data-ajax-mode="replace" data-ajax-update="#results" data-ajax-method="post">
+                    <input type="submit" value="Перейти" />
+                </form>
+            </div>
+            @{ foreach (Category category in Model)
+                {
+                <div class="col-sm">
+                    <h4>@category.CategoryName</h4>
+                    <form asp-controller="News" asp-action="Search" data-ajax="true" asp-route-category="@category.CategoryName" data-ajax-mode="replace" data-ajax-update="#results" data-ajax-method="post">
+                        <input type="submit" value="Перейти" />
+                    </form>
+                </div>
+                }
+            }
+        </div>
+
+
+    </div>
+    <div id="results"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajax-unobtrusive/3.2.6/jquery.unobtrusive-ajax.min.js"</script>

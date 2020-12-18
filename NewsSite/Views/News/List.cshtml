@@ -1,0 +1,20 @@
+﻿
+@using NewsSite.Data.Models
+
+
+<h2>Все новости</h2>
+<h3>@Model.CurrCategory</h3>
+<div class="container-xxl">
+    <div class="row m-4 p-1">
+        <div class="col-9">
+            <div class="row row-cols-1 row-cols-md-3 g-1">
+                @{
+                    foreach (News asd in Model.AllNews)
+                    {
+                        @Html.Partial("AllNews", asd)
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,21 @@
+﻿@using NewsSite.Data.Models
+@model IEnumerable<News>
+
+    <hr>
+    <hr />
+    <div id="searchresults">
+        @{
+        foreach (News news in Model)
+        {
+            <div class="container">
+                <a class="card card-reveal" href="#">
+                    <img class="card-img-top" src="@news.img" alt="@news.name" />
+                    <div class="card-body">
+                        <div class="card-title">@news.Desc</div>
+                    </div>
+                </a>
+
+            </div>
+        }
+        }
+    </div>
